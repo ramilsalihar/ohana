@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class OhanaApp extends StatelessWidget {
+import 'router/app_router.dart';
+
+class OhanaApp extends ConsumerWidget {
   const OhanaApp({super.key, this.missingEnv = const []});
 
   /// Names of required environment values that were not provided at build
@@ -8,43 +11,34 @@ class OhanaApp extends StatelessWidget {
   final List<String> missingEnv;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    const seedColor = Color(0xFFE07A5F);
+    final theme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
+    );
+    final darkTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
+      ),
+    );
+
+    if (missingEnv.isNotEmpty) {
+      return MaterialApp(
+        title: 'Ohana',
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        darkTheme: darkTheme,
+        home: _MissingConfigScreen(missing: missingEnv),
+      );
+    }
+
+    return MaterialApp.router(
       title: 'Ohana',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFE07A5F)),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFE07A5F),
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: missingEnv.isEmpty
-          ? const _PlaceholderHome()
-          : _MissingConfigScreen(missing: missingEnv),
-    );
-  }
-}
-
-class _PlaceholderHome extends StatelessWidget {
-  const _PlaceholderHome();
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Ohana', style: textTheme.displaySmall),
-            const SizedBox(height: 8),
-            Text('Daily rituals for couples', style: textTheme.bodyLarge),
-          ],
-        ),
-      ),
+      theme: theme,
+      darkTheme: darkTheme,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

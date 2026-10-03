@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/app.dart';
@@ -15,5 +16,5 @@ Future<void> main() async {
     );
   }
 
-  runApp(OhanaApp(missingEnv: env.missing));
+  runApp(ProviderScope(child: OhanaApp(missingEnv: env.missing)));
 }
