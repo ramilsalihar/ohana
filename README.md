@@ -12,8 +12,11 @@ MVP planning. Flutter project initialized (iOS + Android); features not built ye
 
 ```bash
 flutter pub get
-flutter run
+cp .env.example .env   # then fill in SUPABASE_URL and SUPABASE_ANON_KEY
+flutter run --dart-define-from-file=.env
 ```
+
+`.env` is gitignored. Values are compiled in at build time and read through the typed `Env` class in `lib/core/config/env.dart`.
 
 Run checks:
 
