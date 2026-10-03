@@ -57,5 +57,6 @@ Rules: features do not import each other's `data/` or `presentation/`; `core/` n
 ## Docs
 
 - [PRD (MVP)](docs/prd.md)
+- [Mutual reveal: how answers stay hidden](docs/mutual-reveal.md)
 - [Product vision & MVP](docs/product-vision.md)
 - [Research: what matters in relationships](docs/research.md)
