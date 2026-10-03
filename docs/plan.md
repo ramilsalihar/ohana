@@ -12,7 +12,7 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 - [x] Environment config: `.env.example` with `SUPABASE_URL` and `SUPABASE_ANON_KEY`, load via `--dart-define-from-file`, typed `Env` class in `lib/core/config/`
 - [x] Initialize Supabase in `main.dart`; app still boots (with a clear message) when env values are missing
 - [x] Router: `go_router` with placeholder `/welcome` and `/home` routes, wired through Riverpod
-- [ ] Design tokens: color scheme (light + dark), typography scale, spacing constants in `lib/app/theme/`
+- [x] Design tokens: color scheme (light + dark), typography scale, spacing constants in `lib/app/theme/`
 - [ ] Stricter lints in `analysis_options.yaml`; fix any findings
 - [ ] GitHub Actions CI: `flutter analyze` and `flutter test` on push and pull request
 - [ ] Database schema: `supabase/migrations/` SQL for the PRD §8 data model with Row Level Security policies (couple members only)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router/app_router.dart';
+import 'theme/app_theme.dart';
 
 class OhanaApp extends ConsumerWidget {
   const OhanaApp({super.key, this.missingEnv = const []});
@@ -12,23 +13,12 @@ class OhanaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const seedColor = Color(0xFFE07A5F);
-    final theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
-    );
-    final darkTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.dark,
-      ),
-    );
-
     if (missingEnv.isNotEmpty) {
       return MaterialApp(
         title: 'Ohana',
         debugShowCheckedModeBanner: false,
-        theme: theme,
-        darkTheme: darkTheme,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
         home: _MissingConfigScreen(missing: missingEnv),
       );
     }
@@ -36,8 +26,8 @@ class OhanaApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Ohana',
       debugShowCheckedModeBanner: false,
-      theme: theme,
-      darkTheme: darkTheme,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       routerConfig: ref.watch(routerProvider),
     );
   }
