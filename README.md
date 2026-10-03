@@ -6,7 +6,21 @@ A mobile app for couples — dating or married — to stay close and fight relat
 
 ## Status
 
-Early discovery. No app code yet.
+MVP planning. Flutter project initialized (iOS + Android); features not built yet.
+
+## Getting started
+
+```bash
+flutter pub get
+flutter run
+```
+
+Run checks:
+
+```bash
+flutter analyze
+flutter test
+```
 
 ## Stack (planned)
 
@@ -16,5 +30,6 @@ Early discovery. No app code yet.
 
 ## Docs
 
+- [PRD (MVP)](docs/prd.md)
 - [Product vision & MVP](docs/product-vision.md)
 - [Research: what matters in relationships](docs/research.md)
