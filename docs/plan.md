@@ -13,7 +13,7 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 - [x] Initialize Supabase in `main.dart`; app still boots (with a clear message) when env values are missing
 - [x] Router: `go_router` with placeholder `/welcome` and `/home` routes, wired through Riverpod
 - [x] Design tokens: color scheme (light + dark), typography scale, spacing constants in `lib/app/theme/`
-- [ ] Stricter lints in `analysis_options.yaml`; fix any findings
+- [x] Stricter lints in `analysis_options.yaml`; fix any findings
 - [ ] GitHub Actions CI: `flutter analyze` and `flutter test` on push and pull request
 - [ ] Database schema: `supabase/migrations/` SQL for the PRD §8 data model with Row Level Security policies (couple members only)
 - [ ] Mutual-reveal RPC: SQL function that returns the partner's answer only if the caller has answered; document in `docs/`
