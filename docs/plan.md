@@ -7,7 +7,7 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 
 ## M0 — Foundations
 
-- [ ] Add core dependencies: `flutter_riverpod`, `go_router`, `supabase_flutter`; `flutter analyze` and `flutter test` pass
+- [x] Add core dependencies: `flutter_riverpod`, `go_router`, `supabase_flutter`; `flutter analyze` and `flutter test` pass
 - [ ] Feature-first folder structure: `lib/app/` (app, router, theme), `lib/core/` (config, utils), `lib/features/<feature>/{data,domain,presentation}/`; document it in README
 - [ ] Environment config: `.env.example` with `SUPABASE_URL` and `SUPABASE_ANON_KEY`, load via `--dart-define-from-file`, typed `Env` class in `lib/core/config/`
 - [ ] Initialize Supabase in `main.dart`; app still boots (with a clear message) when env values are missing
