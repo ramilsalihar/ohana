@@ -53,6 +53,7 @@ void main() {
         GoRoute(path: '/couple/create', builder: (_, _) => page('CREATE')),
         GoRoute(path: '/join', builder: (_, _) => page('JOIN')),
         GoRoute(path: '/profile/setup', builder: (_, _) => page('PROFILE')),
+        GoRoute(path: '/history', builder: (_, _) => page('HISTORY')),
       ],
     );
     addTearDown(router.dispose);
@@ -231,5 +232,17 @@ void main() {
     await pumpHome(tester);
 
     expect(find.text(question), findsNothing);
+  });
+
+  testWidgets('paired: "Past questions" opens history', (tester) async {
+    await pumpHome(
+      tester,
+      couple: CoupleSpace(id: 'c1', togetherSince: DateTime(2023, 5, 14)),
+    );
+
+    await tester.ensureVisible(find.text('Past questions'));
+    await tester.tap(find.text('Past questions'));
+    await tester.pumpAndSettle();
+    expect(find.text('HISTORY'), findsOneWidget);
   });
 }

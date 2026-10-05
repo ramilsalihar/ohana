@@ -9,6 +9,7 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/couple/presentation/couple_providers.dart';
 import '../../features/couple/presentation/create_couple_screen.dart';
 import '../../features/couple/presentation/join_couple_screen.dart';
+import '../../features/daily_question/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/profile/presentation/profile_setup_screen.dart';
 import '../../features/welcome/presentation/welcome_screen.dart';
@@ -21,6 +22,10 @@ abstract final class AppRoutes {
   static const createCouple = '/couple/create';
   static const join = '/join';
   static const profileSetup = '/profile/setup';
+  static const history = '/history';
+
+  /// One past day's question; [date] is `YYYY-MM-DD`.
+  static String historyDay(String date) => '$history/$date';
 
   /// Join screen with the code from an invite link filled in.
   static String joinWithCode(String code) => '$join/$code';
@@ -86,6 +91,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.join,
         builder: (context, state) => const JoinCoupleScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.history,
+        builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '${AppRoutes.history}/:date',
+        builder: (context, state) =>
+            HistoryDayScreen(date: state.pathParameters['date']!),
       ),
       GoRoute(
         path: AppRoutes.profileSetup,

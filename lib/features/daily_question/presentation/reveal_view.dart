@@ -9,9 +9,12 @@ import 'daily_question_providers.dart';
 /// Both answers, shown once both partners have answered, with the reaction
 /// each left on the other's answer.
 class RevealView extends ConsumerStatefulWidget {
-  const RevealView({super.key, required this.status});
+  const RevealView({super.key, required this.status, this.date});
 
   final DailyQuestionStatus status;
+
+  /// The day being shown; null means today.
+  final DateTime? date;
 
   @override
   ConsumerState<RevealView> createState() => _RevealViewState();
@@ -43,7 +46,7 @@ class _RevealViewState extends ConsumerState<RevealView> {
       await ref
           .read(dailyQuestionRepositoryProvider)
           .setMyReaction(widget.status.partnerAnswer!.id, reaction);
-      ref.invalidate(todayQuestionProvider);
+      ref.invalidate(questionStatusProvider(widget.date));
     } on DailyQuestionFailure catch (e) {
       if (mounted) setState(() => _error = e.message);
     } on Object {

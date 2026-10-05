@@ -81,6 +81,28 @@ class DailyQuestionStatus {
   bool get isRevealed => myAnswer != null && partnerAnswer != null;
 }
 
+/// Where the current user stands on a past question. It describes only
+/// their own side: a day they have not answered is [unanswered] whether or
+/// not the partner has answered it.
+enum HistoryStatus {
+  unanswered,
+  waiting,
+  revealed;
+
+  static HistoryStatus fromServer(String value) => switch (value) {
+    'revealed' => revealed,
+    'waiting' => waiting,
+    _ => unanswered,
+  };
+}
+
+class QuestionHistoryEntry {
+  const QuestionHistoryEntry({required this.question, required this.status});
+
+  final DailyQuestion question;
+  final HistoryStatus status;
+}
+
 const answerMaxLength = 500;
 
 /// Length the way the server counts it (Unicode code points), so a message

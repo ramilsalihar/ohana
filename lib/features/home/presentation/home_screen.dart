@@ -86,6 +86,13 @@ class HomeScreen extends ConsumerWidget {
         _coupleStatus(context, ref, space),
         const SizedBox(height: AppSpacing.xxl),
         DailyQuestionCard(previewOnly: space.isWaitingForPartner),
+        if (!space.isWaitingForPartner) ...[
+          const SizedBox(height: AppSpacing.sm),
+          TextButton(
+            onPressed: () => context.push(AppRoutes.history),
+            child: const Text('Past questions'),
+          ),
+        ],
       ],
     );
   }

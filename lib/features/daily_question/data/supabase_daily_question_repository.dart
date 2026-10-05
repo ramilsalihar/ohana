@@ -20,14 +20,39 @@ class SupabaseDailyQuestionRepository implements DailyQuestionRepository {
   @override
   Future<DailyQuestionStatus> getToday() => _guard(() async {
     final rows = await _client.rpc<List<dynamic>>('get_daily_question');
-    final row = rows.single as Map<String, dynamic>;
-    final question = DailyQuestion(
-      date: DateTime.parse(row['question_date'] as String),
-      questionId: row['question_id'] as String,
-      text: row['text'] as String,
-      category: row['category'] as String,
-    );
+    return _statusFor(_toQuestion(rows.single as Map<String, dynamic>));
+  });
 
+  @override
+  Future<DailyQuestionStatus?> getDay(DateTime date) => _guard(() async {
+    final rows = await _client.rpc<List<dynamic>>(
+      'get_question_on',
+      params: {'question_date': formatDateOnly(date)},
+    );
+    if (rows.isEmpty) return null;
+    return _statusFor(_toQuestion(rows.first as Map<String, dynamic>));
+  });
+
+  @override
+  Future<List<QuestionHistoryEntry>> getHistory() => _guard(() async {
+    final rows = await _client.rpc<List<dynamic>>('get_question_history');
+    return [
+      for (final row in rows.cast<Map<String, dynamic>>())
+        QuestionHistoryEntry(
+          question: _toQuestion(row),
+          status: HistoryStatus.fromServer(row['status'] as String),
+        ),
+    ];
+  });
+
+  static DailyQuestion _toQuestion(Map<String, dynamic> row) => DailyQuestion(
+    date: DateTime.parse(row['question_date'] as String),
+    questionId: row['question_id'] as String,
+    text: row['text'] as String,
+    category: row['category'] as String,
+  );
+
+  Future<DailyQuestionStatus> _statusFor(DailyQuestion question) async {
     final mine = await _myAnswerRow(question.date);
     // The server returns the partner's answer only when the caller has
     // answered, so there is nothing to ask for before that.
@@ -75,7 +100,7 @@ class SupabaseDailyQuestionRepository implements DailyQuestionRepository {
       myReaction: reactionOn(partnerAnswer.id, myAnswer.userId),
       partnerReaction: reactionOn(myAnswer.id, partnerAnswer.userId),
     );
-  });
+  }
 
   @override
   Future<void> setMyReaction(String answerId, Reaction reaction) =>

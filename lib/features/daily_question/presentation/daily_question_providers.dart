@@ -10,10 +10,21 @@ final dailyQuestionRepositoryProvider = Provider<DailyQuestionRepository>(
   (ref) => SupabaseDailyQuestionRepository(Supabase.instance.client),
 );
 
-/// Today's question and answers. Invalidate after saving an answer.
-final todayQuestionProvider = FutureProvider<DailyQuestionStatus>(
-  (ref) => ref.watch(dailyQuestionRepositoryProvider).getToday(),
-  // No silent background retries: the card shows the error with a
-  // "Try again" button instead.
+/// A day's question and answers; a null date means today. Invalidate after
+/// saving an answer or reaction.
+final questionStatusProvider =
+    FutureProvider.family<DailyQuestionStatus?, DateTime?>(
+      (ref, date) {
+        final repository = ref.watch(dailyQuestionRepositoryProvider);
+        return date == null ? repository.getToday() : repository.getDay(date);
+      },
+      // No silent background retries: the card shows the error with a
+      // "Try again" button instead.
+      retry: (_, _) => null,
+    );
+
+/// Past questions, newest first. Invalidate after answering a past day.
+final questionHistoryProvider = FutureProvider<List<QuestionHistoryEntry>>(
+  (ref) => ref.watch(dailyQuestionRepositoryProvider).getHistory(),
   retry: (_, _) => null,
 );

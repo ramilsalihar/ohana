@@ -7,6 +7,12 @@ abstract interface class DailyQuestionRepository {
   /// answered and the partner has too, the partner's answer.
   Future<DailyQuestionStatus> getToday();
 
+  /// The same for a past day, or null if the couple had no question then.
+  Future<DailyQuestionStatus?> getDay(DateTime date);
+
+  /// Past questions, newest first, not including today's.
+  Future<List<QuestionHistoryEntry>> getHistory();
+
   /// Creates or replaces the current user's answer for [date].
   ///
   /// Throws [DailyQuestionFailure] with

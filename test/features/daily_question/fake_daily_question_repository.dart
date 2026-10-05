@@ -60,11 +60,58 @@ class FakeDailyQuestionRepository implements DailyQuestionRepository {
     myReaction = reaction.isEmpty ? null : reaction;
   }
 
+  /// Past days, keyed by date.
+  final Map<DateTime, FakePastDay> pastDays = {};
+  Object? historyError;
+
+  @override
+  Future<DailyQuestionStatus?> getDay(DateTime date) async {
+    final day = pastDays[date];
+    if (day == null) return null;
+    final mine = day.myAnswer;
+    final partner = day.partnerAnswer;
+    return DailyQuestionStatus(
+      question: day.question(date),
+      myAnswer: mine == null
+          ? null
+          : Answer(id: 'a-me', userId: 'me', body: mine),
+      partnerAnswer: mine == null || partner == null
+          ? null
+          : Answer(id: 'a-partner', userId: 'partner', body: partner),
+      partnerName: partnerName,
+    );
+  }
+
+  @override
+  Future<List<QuestionHistoryEntry>> getHistory() async {
+    final error = historyError;
+    historyError = null;
+    if (error != null) Error.throwWithStackTrace(error, StackTrace.current);
+    final dates = pastDays.keys.toList()..sort((a, b) => b.compareTo(a));
+    return [
+      for (final date in dates)
+        QuestionHistoryEntry(
+          question: pastDays[date]!.question(date),
+          status: pastDays[date]!.myAnswer == null
+              ? HistoryStatus.unanswered
+              : pastDays[date]!.partnerAnswer == null
+              ? HistoryStatus.waiting
+              : HistoryStatus.revealed,
+        ),
+    ];
+  }
+
   @override
   Future<void> saveMyAnswer(DateTime date, String body) async {
     final error = saveError;
     saveError = null;
     if (error != null) Error.throwWithStackTrace(error, StackTrace.current);
+    final past = pastDays[date];
+    if (past != null) {
+      saves.add((date: date, body: body));
+      past.myAnswer = body;
+      return;
+    }
     if (partnerAnswersBeforeSave) {
       partnerAnswersBeforeSave = false;
       partnerAnswer = 'Partner got there first';
@@ -77,4 +124,19 @@ class FakeDailyQuestionRepository implements DailyQuestionRepository {
     saves.add((date: date, body: body));
     myAnswer = body;
   }
+}
+
+class FakePastDay {
+  FakePastDay(this.text, {this.myAnswer, this.partnerAnswer});
+
+  final String text;
+  String? myAnswer;
+  String? partnerAnswer;
+
+  DailyQuestion question(DateTime date) => DailyQuestion(
+    date: date,
+    questionId: 'q-${date.day}',
+    text: text,
+    category: 'deep',
+  );
 }

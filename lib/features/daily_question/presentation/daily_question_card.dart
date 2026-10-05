@@ -14,13 +14,16 @@ import 'reveal_view.dart';
 /// With [previewOnly] (the partner has not joined yet) the question is shown
 /// but cannot be answered.
 class DailyQuestionCard extends ConsumerWidget {
-  const DailyQuestionCard({super.key, this.previewOnly = false});
+  const DailyQuestionCard({super.key, this.previewOnly = false, this.date});
 
   final bool previewOnly;
 
+  /// A past day to show instead of today (from history).
+  final DateTime? date;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(todayQuestionProvider);
+    final status = ref.watch(questionStatusProvider(date));
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -36,15 +39,18 @@ class DailyQuestionCard extends ConsumerWidget {
             message: error is DailyQuestionFailure
                 ? error.message
                 : "Could not load today's question.",
-            onRetry: () => ref.invalidate(todayQuestionProvider),
+            onRetry: () => ref.invalidate(questionStatusProvider(date)),
           ),
-          data: (status) => _QuestionBody(
-            // Start from a clean editor when the day or the saved answer
-            // changes.
-            key: ValueKey((status.question.date, status.myAnswer?.body)),
-            status: status,
-            previewOnly: previewOnly,
-          ),
+          data: (status) => status == null
+              ? const Text('There was no question on this day.')
+              : _QuestionBody(
+                  // Start from a clean editor when the day or the saved
+                  // answer changes.
+                  key: ValueKey((status.question.date, status.myAnswer?.body)),
+                  status: status,
+                  previewOnly: previewOnly,
+                  date: date,
+                ),
         ),
       ),
     );
@@ -75,10 +81,12 @@ class _QuestionBody extends ConsumerStatefulWidget {
     super.key,
     required this.status,
     required this.previewOnly,
+    required this.date,
   });
 
   final DailyQuestionStatus status;
   final bool previewOnly;
+  final DateTime? date;
 
   @override
   ConsumerState<_QuestionBody> createState() => _QuestionBodyState();
@@ -110,7 +118,8 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
       await ref
           .read(dailyQuestionRepositoryProvider)
           .saveMyAnswer(widget.status.question.date, _controller.text.trim());
-      ref.invalidate(todayQuestionProvider);
+      ref.invalidate(questionStatusProvider(widget.date));
+      if (widget.date != null) ref.invalidate(questionHistoryProvider);
     } on DailyQuestionFailure catch (e) {
       if (!mounted) return;
       if (e.reason == DailyQuestionFailureReason.answersLocked) {
@@ -119,7 +128,7 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.message)));
-        ref.invalidate(todayQuestionProvider);
+        ref.invalidate(questionStatusProvider(widget.date));
       } else {
         setState(() => _error = e.message);
       }
@@ -141,7 +150,11 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          "Today's question",
+          widget.date == null
+              ? "Today's question"
+              : MaterialLocalizations.of(
+                  context,
+                ).formatFullDate(status.question.date),
           style: theme.textTheme.labelMedium?.copyWith(
             color: theme.colorScheme.primary,
           ),
@@ -163,7 +176,9 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
         ),
       ];
     }
-    if (status.isRevealed) return [RevealView(status: status)];
+    if (status.isRevealed) {
+      return [RevealView(status: status, date: widget.date)];
+    }
 
     final myAnswer = status.myAnswer;
     if (myAnswer == null || _editing) return _editor(theme, status);
