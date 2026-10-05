@@ -17,7 +17,7 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 - [x] GitHub Actions CI: `flutter analyze` and `flutter test` on push and pull request
 - [x] Database schema: `supabase/migrations/` SQL for the PRD §8 data model with Row Level Security policies (couple members only)
 - [x] Mutual-reveal RPC: SQL function that returns the partner's answer only if the caller has answered; document in `docs/`
-- [ ] Create Supabase project and fill local `.env` **(HUMAN)**
+- [x] Create Supabase project and fill local `.env` **(HUMAN)**
 
 ## M1 — Pairing
 
