@@ -23,3 +23,18 @@ final deviceTimezoneReaderProvider = Provider<DeviceTimezoneReader>(
     }
   },
 );
+
+/// Holds an invite code from a link opened while signed out, so it can be
+/// used once the user has signed in.
+class PendingInvite {
+  String? code;
+
+  /// Returns the stored code and forgets it.
+  String? take() {
+    final value = code;
+    code = null;
+    return value;
+  }
+}
+
+final pendingInviteProvider = Provider<PendingInvite>((ref) => PendingInvite());

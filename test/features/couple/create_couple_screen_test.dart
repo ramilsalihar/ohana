@@ -70,6 +70,11 @@ void main() {
 
     expect(copied, 'V69NX6');
     expect(find.text('Code copied'), findsOneWidget);
+
+    await tester.tap(find.text('Copy invite link'));
+    await tester.pumpAndSettle();
+
+    expect(copied, 'com.ramilsalihar.ohana://invite/join/V69NX6');
   });
 
   testWidgets('still shows the invite when the space already exists', (
@@ -85,16 +90,14 @@ void main() {
     expect(find.text('V69NX6'), findsOneWidget);
   });
 
-  testWidgets('shows a message when the partner has already joined', (
-    tester,
-  ) async {
+  testWidgets('shows a message when the space is already full', (tester) async {
     await pumpScreen(tester);
     couples.createInviteError = const CoupleFailure(
       CoupleFailureReason.coupleFull,
     );
     await tapCreate(tester);
 
-    expect(find.text('Your partner has already joined.'), findsOneWidget);
+    expect(find.text('This space already has two people.'), findsOneWidget);
     expect(find.text('V69NX6'), findsNothing);
   });
 

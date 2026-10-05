@@ -9,6 +9,13 @@ abstract interface class CoupleRepository {
 
   /// Returns the couple's current invite, creating one if none is valid.
   Future<Invite> createInvite();
+
+  /// Joins the couple that issued [code] and returns its id.
+  ///
+  /// If the caller has created their own space and is alone in it, this fails
+  /// with [CoupleFailureReason.hasEmptySpace] unless [leaveEmptySpace] is
+  /// true, in which case that empty space is deleted first.
+  Future<String> joinCouple(String code, {bool leaveEmptySpace = false});
 }
 
 enum CoupleFailureReason {
@@ -17,6 +24,11 @@ enum CoupleFailureReason {
   notInCouple,
   coupleFull,
   invalidTimezone,
+  invalidInvite,
+  inviteUsed,
+  inviteExpired,
+  ownInvite,
+  hasEmptySpace,
   unknown;
 
   /// Maps the stable error names raised by the pairing SQL functions.
@@ -27,6 +39,11 @@ enum CoupleFailureReason {
         'not_in_couple' => notInCouple,
         'couple_full' => coupleFull,
         'invalid_timezone' => invalidTimezone,
+        'invalid_invite' => invalidInvite,
+        'invite_used' => inviteUsed,
+        'invite_expired' => inviteExpired,
+        'own_invite' => ownInvite,
+        'has_empty_space' => hasEmptySpace,
         _ => unknown,
       };
 }
@@ -41,7 +58,17 @@ class CoupleFailure implements Exception {
     CoupleFailureReason.notAuthenticated => 'Please sign in again.',
     CoupleFailureReason.alreadyInCouple => 'You are already in a couple space.',
     CoupleFailureReason.notInCouple => 'Create your couple space first.',
-    CoupleFailureReason.coupleFull => 'Your partner has already joined.',
+    CoupleFailureReason.coupleFull => 'This space already has two people.',
+    CoupleFailureReason.invalidInvite =>
+      'That code does not match an invite. Check it and try again.',
+    CoupleFailureReason.inviteUsed =>
+      'That code has already been used. Ask your partner for a new one.',
+    CoupleFailureReason.inviteExpired =>
+      'That code has expired. Ask your partner for a new one.',
+    CoupleFailureReason.ownInvite =>
+      'That is your own code. Share it with your partner.',
+    CoupleFailureReason.hasEmptySpace =>
+      'You already created a space of your own.',
     CoupleFailureReason.invalidTimezone ||
     CoupleFailureReason.unknown => 'Something went wrong. Please try again.',
   };

@@ -30,4 +30,17 @@ class FakeCoupleRepository implements CoupleRepository {
     inviteCalls++;
     return invite;
   }
+
+  /// Errors thrown by successive joinCouple calls, first in first out.
+  final List<Object> joinErrors = [];
+  final List<({String code, bool leaveEmptySpace})> joinCalls = [];
+
+  @override
+  Future<String> joinCouple(String code, {bool leaveEmptySpace = false}) async {
+    joinCalls.add((code: code, leaveEmptySpace: leaveEmptySpace));
+    if (joinErrors.isNotEmpty) {
+      Error.throwWithStackTrace(joinErrors.removeAt(0), StackTrace.current);
+    }
+    return 'couple-1';
+  }
 }

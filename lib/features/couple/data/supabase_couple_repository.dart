@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/couple_repository.dart';
 import '../domain/invite.dart';
+import '../domain/invite_code.dart';
 
 class SupabaseCoupleRepository implements CoupleRepository {
   SupabaseCoupleRepository(this._client);
@@ -26,6 +27,19 @@ class SupabaseCoupleRepository implements CoupleRepository {
       expiresAt: DateTime.parse(row['expires_at'] as String),
     );
   });
+
+  @override
+  Future<String> joinCouple(String code, {bool leaveEmptySpace = false}) =>
+      _guard(() async {
+        final id = await _client.rpc<Object?>(
+          'join_couple',
+          params: {
+            'invite_code': normalizeInviteCode(code),
+            'leave_empty_space': leaveEmptySpace,
+          },
+        );
+        return id! as String;
+      });
 
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {

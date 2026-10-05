@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../domain/couple_repository.dart';
 import '../domain/invite.dart';
+import '../domain/invite_code.dart';
 import 'couple_providers.dart';
 
 /// Creates the couple space and shows the invite code to share.
@@ -111,12 +112,10 @@ class _InviteView extends StatelessWidget {
 
   final Invite invite;
 
-  Future<void> _copy(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: invite.code));
+  Future<void> _copy(BuildContext context, String text, String done) async {
+    await Clipboard.setData(ClipboardData(text: text));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Code copied')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
   }
 
   @override
@@ -129,7 +128,7 @@ class _InviteView extends StatelessWidget {
         Text('Invite your partner', style: theme.textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Share this code. They enter it after signing in.',
+          'Share this code or the invite link. They use it after signing in.',
           style: theme.textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
@@ -150,9 +149,15 @@ class _InviteView extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xl),
         FilledButton.icon(
-          onPressed: () => _copy(context),
+          onPressed: () => _copy(context, invite.code, 'Code copied'),
           icon: const Icon(Icons.copy),
           label: const Text('Copy code'),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        TextButton(
+          onPressed: () =>
+              _copy(context, inviteLink(invite.code), 'Link copied'),
+          child: const Text('Copy invite link'),
         ),
         const SizedBox(height: AppSpacing.xl),
         Text(
