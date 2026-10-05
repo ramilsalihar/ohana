@@ -37,7 +37,7 @@ Scope: F2 daily question, F4 partner activity, F7 push for F2.
 - [x] Reveal: both answers side by side once both answered, via `get_partner_answer`; react with an emoji or short comment
 - [x] History: past questions and answers; missed days stay answerable
 - [x] Gentle streak: counts days both answered, 2 freeze days per week, no blame copy
-- [ ] Activity strip on Home (F4): positive actions only, last 48 hours
+- [x] Activity strip on Home (F4): positive actions only, last 48 hours
 - [ ] Apply all `supabase/migrations/` to the Supabase project and smoke-test sign-in, pairing and the daily question on a device **(HUMAN)**
 - [ ] Create Firebase project, add FCM/APNs credentials and platform config files **(HUMAN)**
 - [ ] Push notifications for F2: new question, partner answered, both answered (Edge Function + device token registration)

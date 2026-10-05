@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ohana/core/utils/clock.dart';
+import 'package:ohana/features/activity/domain/partner_activity.dart';
+import 'package:ohana/features/activity/presentation/activity_strip.dart';
 import 'package:ohana/features/auth/domain/app_user.dart';
 import 'package:ohana/features/auth/presentation/auth_providers.dart';
 import 'package:ohana/features/couple/domain/couple_repository.dart';
@@ -32,7 +34,22 @@ class _FailingOnceCoupleRepository extends FakeCoupleRepository {
   }
 }
 
+class _FakeActivityRepository implements ActivityRepository {
+  List<PartnerActivity> items = [];
+  Object? error;
+  int loads = 0;
+
+  @override
+  Future<List<PartnerActivity>> getPartnerActivity() async {
+    loads++;
+    final e = error;
+    if (e != null) Error.throwWithStackTrace(e, StackTrace.current);
+    return items;
+  }
+}
+
 void main() {
+  late _FakeActivityRepository activity;
   late FakeAuthRepository auth;
   late FakeCoupleRepository couples;
   late FakeDailyQuestionRepository questions;
@@ -45,7 +62,12 @@ void main() {
     FakeCoupleRepository? repository,
     Streak? streak,
     Object? streakError,
+    List<PartnerActivity> partnerActivity = const [],
+    Object? activityError,
   }) async {
+    activity = _FakeActivityRepository()
+      ..items = partnerActivity
+      ..error = activityError;
     auth = FakeAuthRepository(user: const AppUser(id: 'u1'));
     couples = (repository ?? FakeCoupleRepository(invite: invite))
       ..couple = couple;
@@ -70,6 +92,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(auth),
           coupleRepositoryProvider.overrideWithValue(couples),
           dailyQuestionRepositoryProvider.overrideWithValue(questions),
+          activityRepositoryProvider.overrideWithValue(activity),
           clockProvider.overrideWithValue(
             () => today ?? DateTime(2026, 10, 5, 9),
           ),
@@ -311,5 +334,91 @@ void main() {
     );
 
     expect(find.textContaining('in a row'), findsNothing);
+  });
+
+  PartnerActivity item(String id, PartnerActivityKind kind) =>
+      PartnerActivity(id: id, kind: kind, actorName: 'Sam');
+
+  testWidgets('paired: shows the partner\'s recent positive actions', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      partnerActivity: [
+        item('1', PartnerActivityKind.reacted),
+        item('2', PartnerActivityKind.answeredToday),
+      ],
+    );
+
+    expect(find.text('Sam reacted to your answer'), findsOneWidget);
+    expect(find.text("Sam answered today's question"), findsOneWidget);
+  });
+
+  testWidgets('shows at most three items, newest first', (tester) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      partnerActivity: [
+        item('1', PartnerActivityKind.reacted),
+        item('2', PartnerActivityKind.answeredToday),
+        item('3', PartnerActivityKind.answeredPast),
+        item('4', PartnerActivityKind.answeredPast),
+      ],
+    );
+
+    expect(find.text('Sam answered a past question'), findsOneWidget);
+    final first = tester.getTopLeft(find.text('Sam reacted to your answer'));
+    final second = tester.getTopLeft(
+      find.text("Sam answered today's question"),
+    );
+    expect(first.dy, lessThan(second.dy));
+  });
+
+  testWidgets('no activity: nothing is shown, not an absence message', (
+    tester,
+  ) async {
+    await pumpHome(tester, couple: paired);
+
+    expect(find.textContaining('Sam'), findsNothing);
+    for (final absence in ['No activity', 'nothing', 'not been', 'last seen']) {
+      expect(find.textContaining(absence), findsNothing);
+    }
+  });
+
+  testWidgets('activity failure hides the strip without breaking Home', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      activityError: StateError('offline'),
+    );
+
+    expect(find.textContaining('offline'), findsNothing);
+    expect(find.text('Share answer'), findsOneWidget);
+  });
+
+  testWidgets('waiting for partner: no activity strip', (tester) async {
+    await pumpHome(
+      tester,
+      couple: const CoupleSpace(id: 'c1', memberCount: 1),
+      partnerActivity: [item('1', PartnerActivityKind.reacted)],
+    );
+
+    expect(find.textContaining('Sam'), findsNothing);
+  });
+
+  testWidgets('pull to refresh picks up new partner activity', (tester) async {
+    await pumpHome(tester, couple: paired);
+    expect(find.textContaining('Sam'), findsNothing);
+    activity.items = [item('1', PartnerActivityKind.answeredToday)];
+    final loadsBefore = activity.loads;
+
+    await tester.fling(find.text('together'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+
+    expect(activity.loads, greaterThan(loadsBefore));
+    expect(find.text("Sam answered today's question"), findsOneWidget);
   });
 }

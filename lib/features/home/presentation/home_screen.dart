@@ -8,10 +8,12 @@ import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/format_count.dart';
+import '../../activity/presentation/activity_strip.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../couple/domain/couple_repository.dart';
 import '../../couple/presentation/couple_providers.dart';
 import '../../daily_question/presentation/daily_question_card.dart';
+import '../../daily_question/presentation/daily_question_providers.dart';
 import '../../daily_question/presentation/streak_badge.dart';
 import '../domain/together_counter.dart';
 
@@ -45,9 +47,39 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.screen),
+        // Pull down to pick up what the partner has done since the screen
+        // loaded.
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref
+              ..invalidate(myCoupleProvider)
+              ..invalidate(questionStatusProvider(null))
+              ..invalidate(streakProvider)
+              ..invalidate(partnerActivityProvider);
+            await ref.read(myCoupleProvider.future).catchError((_) => null);
+          },
+          child: _body(context, ref, couple),
+        ),
+      ),
+    );
+  }
+
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<CoupleSpace?> couple,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.screen),
+        child: ConstrainedBox(
+          // Fill the viewport so short content stays centred and the whole
+          // screen can be pulled.
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight - AppSpacing.screen * 2,
+          ),
+          child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: couple.when(
@@ -88,6 +120,7 @@ class HomeScreen extends ConsumerWidget {
         if (!space.isWaitingForPartner) ...[
           const SizedBox(height: AppSpacing.lg),
           const StreakBadge(),
+          const ActivityStrip(),
         ],
         const SizedBox(height: AppSpacing.xl),
         DailyQuestionCard(previewOnly: space.isWaitingForPartner),
