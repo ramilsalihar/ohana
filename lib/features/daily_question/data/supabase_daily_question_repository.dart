@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/utils/date_only.dart';
 import '../domain/daily_question.dart';
 import '../domain/daily_question_repository.dart';
+import '../domain/streak.dart';
 
 class SupabaseDailyQuestionRepository implements DailyQuestionRepository {
   SupabaseDailyQuestionRepository(this._client);
@@ -43,6 +44,20 @@ class SupabaseDailyQuestionRepository implements DailyQuestionRepository {
           status: HistoryStatus.fromServer(row['status'] as String),
         ),
     ];
+  });
+
+  @override
+  Future<Streak?> getStreak() => _guard(() async {
+    final rows = await _client.rpc<List<dynamic>>('get_streak_days');
+    if (rows.isEmpty) return null;
+    final row = rows.first as Map<String, dynamic>;
+    return Streak.compute(
+      today: DateTime.parse(row['today'] as String),
+      completedDates: [
+        for (final date in row['completed_dates'] as List<dynamic>)
+          DateTime.parse(date as String),
+      ],
+    );
   });
 
   static DailyQuestion _toQuestion(Map<String, dynamic> row) => DailyQuestion(

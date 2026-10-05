@@ -1,4 +1,5 @@
 import 'daily_question.dart';
+import 'streak.dart';
 
 /// Daily question operations. Implemented by Supabase in production and by
 /// fakes in tests.
@@ -12,6 +13,9 @@ abstract interface class DailyQuestionRepository {
 
   /// Past questions, newest first, not including today's.
   Future<List<QuestionHistoryEntry>> getHistory();
+
+  /// The couple's current streak, or null when the user is not in a couple.
+  Future<Streak?> getStreak();
 
   /// Creates or replaces the current user's answer for [date].
   ///

@@ -36,7 +36,7 @@ Scope: F2 daily question, F4 partner activity, F7 push for F2.
 - [x] Answer today's question on Home: text up to 500 characters, editable until the partner answers, "Waiting for partner" state
 - [x] Reveal: both answers side by side once both answered, via `get_partner_answer`; react with an emoji or short comment
 - [x] History: past questions and answers; missed days stay answerable
-- [ ] Gentle streak: counts days both answered, 2 freeze days per week, no blame copy
+- [x] Gentle streak: counts days both answered, 2 freeze days per week, no blame copy
 - [ ] Activity strip on Home (F4): positive actions only, last 48 hours
 - [ ] Apply all `supabase/migrations/` to the Supabase project and smoke-test sign-in, pairing and the daily question on a device **(HUMAN)**
 - [ ] Create Firebase project, add FCM/APNs credentials and platform config files **(HUMAN)**

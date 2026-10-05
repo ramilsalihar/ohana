@@ -12,6 +12,7 @@ import '../../auth/presentation/auth_providers.dart';
 import '../../couple/domain/couple_repository.dart';
 import '../../couple/presentation/couple_providers.dart';
 import '../../daily_question/presentation/daily_question_card.dart';
+import '../../daily_question/presentation/streak_badge.dart';
 import '../domain/together_counter.dart';
 
 /// Home shell: shows the together counter, or the next step toward it
@@ -84,7 +85,11 @@ class HomeScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _coupleStatus(context, ref, space),
-        const SizedBox(height: AppSpacing.xxl),
+        if (!space.isWaitingForPartner) ...[
+          const SizedBox(height: AppSpacing.lg),
+          const StreakBadge(),
+        ],
+        const SizedBox(height: AppSpacing.xl),
         DailyQuestionCard(previewOnly: space.isWaitingForPartner),
         if (!space.isWaitingForPartner) ...[
           const SizedBox(height: AppSpacing.sm),

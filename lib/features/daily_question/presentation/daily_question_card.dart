@@ -120,6 +120,7 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
           .saveMyAnswer(widget.status.question.date, _controller.text.trim());
       ref.invalidate(questionStatusProvider(widget.date));
       if (widget.date != null) ref.invalidate(questionHistoryProvider);
+      ref.invalidate(streakProvider);
     } on DailyQuestionFailure catch (e) {
       if (!mounted) return;
       if (e.reason == DailyQuestionFailureReason.answersLocked) {

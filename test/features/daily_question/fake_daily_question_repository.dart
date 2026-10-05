@@ -1,5 +1,6 @@
 import 'package:ohana/features/daily_question/domain/daily_question.dart';
 import 'package:ohana/features/daily_question/domain/daily_question_repository.dart';
+import 'package:ohana/features/daily_question/domain/streak.dart';
 
 class FakeDailyQuestionRepository implements DailyQuestionRepository {
   FakeDailyQuestionRepository({this.myAnswer, this.partnerAnswer});
@@ -58,6 +59,18 @@ class FakeDailyQuestionRepository implements DailyQuestionRepository {
     if (error != null) Error.throwWithStackTrace(error, StackTrace.current);
     reactionCalls.add((answerId: answerId, reaction: reaction));
     myReaction = reaction.isEmpty ? null : reaction;
+  }
+
+  Streak? streak;
+  Object? streakError;
+  int streakLoads = 0;
+
+  @override
+  Future<Streak?> getStreak() async {
+    streakLoads++;
+    final error = streakError;
+    if (error != null) Error.throwWithStackTrace(error, StackTrace.current);
+    return streak;
   }
 
   /// Past days, keyed by date.

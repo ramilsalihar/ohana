@@ -9,6 +9,7 @@ import 'package:ohana/features/auth/presentation/auth_providers.dart';
 import 'package:ohana/features/couple/domain/couple_repository.dart';
 import 'package:ohana/features/couple/domain/invite.dart';
 import 'package:ohana/features/couple/presentation/couple_providers.dart';
+import 'package:ohana/features/daily_question/domain/streak.dart';
 import 'package:ohana/features/daily_question/presentation/daily_question_providers.dart';
 import 'package:ohana/features/home/presentation/home_screen.dart';
 
@@ -34,6 +35,7 @@ class _FailingOnceCoupleRepository extends FakeCoupleRepository {
 void main() {
   late FakeAuthRepository auth;
   late FakeCoupleRepository couples;
+  late FakeDailyQuestionRepository questions;
   final invite = Invite(code: 'UNUSED', expiresAt: DateTime(2030));
 
   Future<void> pumpHome(
@@ -41,10 +43,15 @@ void main() {
     CoupleSpace? couple,
     DateTime? today,
     FakeCoupleRepository? repository,
+    Streak? streak,
+    Object? streakError,
   }) async {
     auth = FakeAuthRepository(user: const AppUser(id: 'u1'));
     couples = (repository ?? FakeCoupleRepository(invite: invite))
       ..couple = couple;
+    questions = FakeDailyQuestionRepository()
+      ..streak = streak
+      ..streakError = streakError;
     Widget page(String name) => Scaffold(body: Text(name));
     final router = GoRouter(
       initialLocation: '/home',
@@ -62,9 +69,7 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(auth),
           coupleRepositoryProvider.overrideWithValue(couples),
-          dailyQuestionRepositoryProvider.overrideWithValue(
-            FakeDailyQuestionRepository(),
-          ),
+          dailyQuestionRepositoryProvider.overrideWithValue(questions),
           clockProvider.overrideWithValue(
             () => today ?? DateTime(2026, 10, 5, 9),
           ),
@@ -244,5 +249,67 @@ void main() {
     await tester.tap(find.text('Past questions'));
     await tester.pumpAndSettle();
     expect(find.text('HISTORY'), findsOneWidget);
+  });
+
+  final paired = CoupleSpace(id: 'c1', togetherSince: DateTime(2023, 5, 14));
+
+  testWidgets('paired: shows the streak', (tester) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      streak: const Streak(days: 6, hasHistory: true),
+    );
+
+    expect(find.text('6 days in a row together'), findsOneWidget);
+  });
+
+  testWidgets('broken streak shows the invitation, nothing about who missed', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      streak: const Streak(days: 0, hasHistory: true),
+    );
+
+    expect(find.text('Start a new streak together'), findsOneWidget);
+    expect(find.textContaining('missed'), findsNothing);
+  });
+
+  testWidgets('answering refreshes the streak', (tester) async {
+    await pumpHome(
+      tester,
+      couple: paired,
+      streak: const Streak(days: 6, hasHistory: true),
+    );
+    final loadsBefore = questions.streakLoads;
+    questions.streak = const Streak(days: 7, hasHistory: true);
+
+    await tester.enterText(find.byType(TextFormField), 'An answer');
+    await tester.ensureVisible(find.text('Share answer'));
+    await tester.tap(find.text('Share answer'));
+    await tester.pumpAndSettle();
+
+    expect(questions.streakLoads, greaterThan(loadsBefore));
+    expect(find.text('7 days in a row together'), findsOneWidget);
+  });
+
+  testWidgets('streak failure hides the line without breaking Home', (
+    tester,
+  ) async {
+    await pumpHome(tester, couple: paired, streakError: StateError('offline'));
+
+    expect(find.textContaining('in a row'), findsNothing);
+    expect(find.text('Share answer'), findsOneWidget);
+  });
+
+  testWidgets('waiting for partner: no streak line', (tester) async {
+    await pumpHome(
+      tester,
+      couple: const CoupleSpace(id: 'c1', memberCount: 1),
+      streak: const Streak(days: 3, hasHistory: true),
+    );
+
+    expect(find.textContaining('in a row'), findsNothing);
   });
 }

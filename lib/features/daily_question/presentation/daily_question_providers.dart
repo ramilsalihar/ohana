@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/supabase_daily_question_repository.dart';
 import '../domain/daily_question.dart';
 import '../domain/daily_question_repository.dart';
+import '../domain/streak.dart';
 
 /// Override in tests with a fake.
 final dailyQuestionRepositoryProvider = Provider<DailyQuestionRepository>(
@@ -26,5 +27,11 @@ final questionStatusProvider =
 /// Past questions, newest first. Invalidate after answering a past day.
 final questionHistoryProvider = FutureProvider<List<QuestionHistoryEntry>>(
   (ref) => ref.watch(dailyQuestionRepositoryProvider).getHistory(),
+  retry: (_, _) => null,
+);
+
+/// The couple's streak. Invalidate after saving an answer.
+final streakProvider = FutureProvider<Streak?>(
+  (ref) => ref.watch(dailyQuestionRepositoryProvider).getStreak(),
   retry: (_, _) => null,
 );
