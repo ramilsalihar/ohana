@@ -20,7 +20,7 @@ class WelcomeScreen extends StatelessWidget {
             Text('Daily rituals for couples', style: textTheme.bodyLarge),
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: () => context.go(AppRoutes.home),
+              onPressed: () => context.push(AppRoutes.signIn),
               child: const Text('Get started'),
             ),
           ],

@@ -2,10 +2,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ohana/app/app.dart';
+import 'package:ohana/features/auth/presentation/auth_providers.dart';
+
+import 'features/auth/fake_auth_repository.dart';
 
 void main() {
   testWidgets('App boots and shows the app name', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: OhanaApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+        ],
+        child: const OhanaApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Ohana'), findsOneWidget);
