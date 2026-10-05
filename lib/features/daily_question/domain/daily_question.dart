@@ -22,12 +22,41 @@ class Answer {
   final String body;
 }
 
+/// One person's response to the other's revealed answer: an emoji, a short
+/// comment, or both.
+class Reaction {
+  const Reaction({this.emoji, this.comment});
+
+  final String? emoji;
+  final String? comment;
+
+  bool get isEmpty => emoji == null && comment == null;
+}
+
+/// Quick reactions offered under the partner's answer.
+const reactionEmojis = ['❤️', '😂', '🥹', '🤗', '👏'];
+
+const reactionCommentMaxLength = 280;
+
+/// Returns an error message for a reaction comment, or null when it can be
+/// saved. An empty comment is allowed (it clears the comment).
+String? validateReactionComment(String? input) {
+  final text = input?.trim() ?? '';
+  if (answerLength(text) > reactionCommentMaxLength) {
+    return 'Keep it to $reactionCommentMaxLength characters';
+  }
+  return null;
+}
+
 /// Everything the current user may see about one day's question.
 class DailyQuestionStatus {
   const DailyQuestionStatus({
     required this.question,
     this.myAnswer,
     this.partnerAnswer,
+    this.partnerName,
+    this.myReaction,
+    this.partnerReaction,
   });
 
   final DailyQuestion question;
@@ -36,6 +65,15 @@ class DailyQuestionStatus {
   /// Only ever present once the current user has answered (mutual reveal is
   /// enforced by the server).
   final Answer? partnerAnswer;
+
+  /// The partner's display name, when revealed and set.
+  final String? partnerName;
+
+  /// The current user's reaction to the partner's answer.
+  final Reaction? myReaction;
+
+  /// The partner's reaction to the current user's answer.
+  final Reaction? partnerReaction;
 
   bool get hasAnswered => myAnswer != null;
 

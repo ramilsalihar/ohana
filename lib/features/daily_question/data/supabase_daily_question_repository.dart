@@ -35,12 +35,83 @@ class SupabaseDailyQuestionRepository implements DailyQuestionRepository {
         ? null
         : await _partnerAnswerRow(question.date);
 
+    if (mine == null || partner == null) {
+      return DailyQuestionStatus(
+        question: question,
+        myAnswer: mine == null ? null : _toAnswer(mine),
+      );
+    }
+
+    final myAnswer = _toAnswer(mine);
+    final partnerAnswer = _toAnswer(partner);
+
+    final partnerProfile = await _client
+        .from('profiles')
+        .select('display_name')
+        .eq('id', partnerAnswer.userId)
+        .maybeSingle();
+
+    final reactions = await _client
+        .from('answer_reactions')
+        .select('answer_id, user_id, emoji, comment')
+        .inFilter('answer_id', [myAnswer.id, partnerAnswer.id]);
+    Reaction? reactionOn(String answerId, String byUserId) {
+      for (final row in reactions) {
+        if (row['answer_id'] == answerId && row['user_id'] == byUserId) {
+          return Reaction(
+            emoji: row['emoji'] as String?,
+            comment: row['comment'] as String?,
+          );
+        }
+      }
+      return null;
+    }
+
     return DailyQuestionStatus(
       question: question,
-      myAnswer: mine == null ? null : _toAnswer(mine),
-      partnerAnswer: partner == null ? null : _toAnswer(partner),
+      myAnswer: myAnswer,
+      partnerAnswer: partnerAnswer,
+      partnerName: partnerProfile?['display_name'] as String?,
+      myReaction: reactionOn(partnerAnswer.id, myAnswer.userId),
+      partnerReaction: reactionOn(myAnswer.id, partnerAnswer.userId),
     );
   });
+
+  @override
+  Future<void> setMyReaction(String answerId, Reaction reaction) =>
+      _guard(() async {
+        final userId = _userId;
+        final comment = reaction.comment?.trim();
+        final values = {
+          'emoji': reaction.emoji,
+          'comment': comment == null || comment.isEmpty ? null : comment,
+        };
+
+        if (values.values.every((v) => v == null)) {
+          await _client
+              .from('answer_reactions')
+              .delete()
+              .eq('answer_id', answerId)
+              .eq('user_id', userId);
+          return;
+        }
+
+        // Not an upsert: clients may only update the emoji and comment
+        // columns, and an upsert would also "update" the key columns.
+        final updated = await _client
+            .from('answer_reactions')
+            .update(values)
+            .eq('answer_id', answerId)
+            .eq('user_id', userId)
+            .select('answer_id');
+        if (updated.isEmpty) {
+          await _client.from('answer_reactions').insert({
+            'answer_id': answerId,
+            'user_id': userId,
+            ...values,
+          });
+        }
+      });
 
   @override
   Future<void> saveMyAnswer(DateTime date, String body) => _guard(() async {

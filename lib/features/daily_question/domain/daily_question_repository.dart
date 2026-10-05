@@ -13,6 +13,10 @@ abstract interface class DailyQuestionRepository {
   /// [DailyQuestionFailureReason.answersLocked] if the partner has already
   /// answered, since revealed answers cannot change.
   Future<void> saveMyAnswer(DateTime date, String body);
+
+  /// Sets the current user's reaction to the answer [answerId] (the partner's
+  /// revealed answer). An empty [reaction] removes it.
+  Future<void> setMyReaction(String answerId, Reaction reaction);
 }
 
 enum DailyQuestionFailureReason {

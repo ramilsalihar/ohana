@@ -6,8 +6,10 @@ import '../../../app/theme/app_spacing.dart';
 import '../domain/daily_question.dart';
 import '../domain/daily_question_repository.dart';
 import 'daily_question_providers.dart';
+import 'reveal_view.dart';
 
-/// Today's question on the home screen: answer it, then wait for the partner.
+/// Today's question on the home screen: answer it, wait for the partner, then
+/// see both answers.
 ///
 /// With [previewOnly] (the partner has not joined yet) the question is shown
 /// but cannot be answered.
@@ -111,10 +113,15 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
       ref.invalidate(todayQuestionProvider);
     } on DailyQuestionFailure catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
       if (e.reason == DailyQuestionFailureReason.answersLocked) {
-        // The partner answered meanwhile: reload to show the locked state.
+        // The partner answered meanwhile. The card reloads into the reveal,
+        // so say why the edit was not saved somewhere that survives it.
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
         ref.invalidate(todayQuestionProvider);
+      } else {
+        setState(() => _error = e.message);
       }
     } on Object {
       if (mounted) {
@@ -156,6 +163,8 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
         ),
       ];
     }
+    if (status.isRevealed) return [RevealView(status: status)];
+
     final myAnswer = status.myAnswer;
     if (myAnswer == null || _editing) return _editor(theme, status);
 
@@ -164,9 +173,7 @@ class _QuestionBodyState extends ConsumerState<_QuestionBody> {
       const SizedBox(height: AppSpacing.xs),
       Text(myAnswer.body, style: theme.textTheme.bodyLarge),
       const SizedBox(height: AppSpacing.lg),
-      if (status.isRevealed)
-        Text('You have both answered.', style: theme.textTheme.bodyMedium)
-      else ...[
+      ...[
         Semantics(
           liveRegion: true,
           child: Text(

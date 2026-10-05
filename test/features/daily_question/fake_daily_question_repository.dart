@@ -39,7 +39,25 @@ class FakeDailyQuestionRepository implements DailyQuestionRepository {
       partnerAnswer: mine == null || partner == null
           ? null
           : Answer(id: 'a-partner', userId: 'partner', body: partner),
+      partnerName: mine == null || partner == null ? null : partnerName,
+      myReaction: myReaction,
+      partnerReaction: partnerReaction,
     );
+  }
+
+  String? partnerName = 'Sam';
+  Reaction? myReaction;
+  Reaction? partnerReaction;
+  Object? reactionError;
+  final List<({String answerId, Reaction reaction})> reactionCalls = [];
+
+  @override
+  Future<void> setMyReaction(String answerId, Reaction reaction) async {
+    final error = reactionError;
+    reactionError = null;
+    if (error != null) Error.throwWithStackTrace(error, StackTrace.current);
+    reactionCalls.add((answerId: answerId, reaction: reaction));
+    myReaction = reaction.isEmpty ? null : reaction;
   }
 
   @override

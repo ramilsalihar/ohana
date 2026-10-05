@@ -119,34 +119,38 @@ void main() {
       ),
     );
 
-    expect(find.text('You have both answered.'), findsOneWidget);
+    expect(find.text('Mine'), findsOneWidget);
+    expect(find.text('Theirs'), findsOneWidget);
     expect(find.text('Edit answer'), findsNothing);
     expect(find.text('Waiting for your partner…'), findsNothing);
   });
 
-  testWidgets(
-    'partner answering mid-edit locks the answer with an explanation',
-    (tester) async {
-      await pumpCard(
-        tester,
-        repository: FakeDailyQuestionRepository(myAnswer: 'First try'),
-      );
-      await tester.tap(find.text('Edit answer'));
-      await tester.pumpAndSettle();
-      questions.partnerAnswersBeforeSave = true;
+  testWidgets('partner answering mid-edit keeps the saved answer and reveals', (
+    tester,
+  ) async {
+    await pumpCard(
+      tester,
+      repository: FakeDailyQuestionRepository(myAnswer: 'First try'),
+    );
+    await tester.tap(find.text('Edit answer'));
+    await tester.pumpAndSettle();
+    questions.partnerAnswersBeforeSave = true;
 
-      await tester.enterText(find.byType(TextFormField), 'Too late');
-      await tester.tap(find.text('Save changes'));
-      await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'Too late');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
 
-      expect(questions.saves, isEmpty);
-      expect(questions.myAnswer, 'First try');
-      expect(
-        find.text('Your partner has answered, so your answers are now final.'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(questions.saves, isEmpty);
+    expect(questions.myAnswer, 'First try');
+    expect(
+      find.text('Your partner has answered, so your answers are now final.'),
+      findsOneWidget,
+    );
+    // The card reloads into the reveal, with the original answer intact.
+    expect(find.text('First try'), findsOneWidget);
+    expect(find.text('Partner got there first'), findsOneWidget);
+    expect(find.text('Too late'), findsNothing);
+  });
 
   testWidgets('never shows the partner\'s answer before the user answers', (
     tester,
