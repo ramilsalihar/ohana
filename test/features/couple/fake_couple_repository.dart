@@ -43,4 +43,16 @@ class FakeCoupleRepository implements CoupleRepository {
     }
     return 'couple-1';
   }
+
+  CoupleSpace? couple;
+  final List<DateTime> togetherSinceCalls = [];
+
+  @override
+  Future<CoupleSpace?> getMyCouple() async => couple;
+
+  @override
+  Future<void> setTogetherSince(DateTime date) async {
+    togetherSinceCalls.add(date);
+    couple = CoupleSpace(id: couple?.id ?? 'couple-1', togetherSince: date);
+  }
 }

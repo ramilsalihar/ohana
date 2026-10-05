@@ -24,6 +24,11 @@ class HomeScreen extends StatelessWidget {
               onPressed: () => context.push(AppRoutes.join),
               child: const Text('Join with a code'),
             ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => context.push(AppRoutes.profileSetup),
+              child: const Text('Set up profile'),
+            ),
           ],
         ),
       ),

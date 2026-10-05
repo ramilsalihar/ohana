@@ -16,6 +16,22 @@ abstract interface class CoupleRepository {
   /// with [CoupleFailureReason.hasEmptySpace] unless [leaveEmptySpace] is
   /// true, in which case that empty space is deleted first.
   Future<String> joinCouple(String code, {bool leaveEmptySpace = false});
+
+  /// The current user's couple space, or null if they are not in one.
+  Future<CoupleSpace?> getMyCouple();
+
+  /// Sets the date the relationship started. Shared: either partner can
+  /// change it.
+  Future<void> setTogetherSince(DateTime date);
+}
+
+class CoupleSpace {
+  const CoupleSpace({required this.id, this.togetherSince});
+
+  final String id;
+
+  /// Calendar date (local midnight), or null if not set yet.
+  final DateTime? togetherSince;
 }
 
 enum CoupleFailureReason {

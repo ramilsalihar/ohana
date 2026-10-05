@@ -10,6 +10,7 @@ import '../../features/couple/presentation/couple_providers.dart';
 import '../../features/couple/presentation/create_couple_screen.dart';
 import '../../features/couple/presentation/join_couple_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/profile/presentation/profile_setup_screen.dart';
 import '../../features/welcome/presentation/welcome_screen.dart';
 
 /// Route paths used across the app.
@@ -19,6 +20,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const createCouple = '/couple/create';
   static const join = '/join';
+  static const profileSetup = '/profile/setup';
 
   /// Join screen with the code from an invite link filled in.
   static String joinWithCode(String code) => '$join/$code';
@@ -84,6 +86,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.join,
         builder: (context, state) => const JoinCoupleScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileSetup,
+        builder: (context, state) => const ProfileSetupScreen(),
       ),
       GoRoute(
         path: '${AppRoutes.join}/:code',

@@ -41,6 +41,38 @@ class SupabaseCoupleRepository implements CoupleRepository {
         return id! as String;
       });
 
+  @override
+  Future<CoupleSpace?> getMyCouple() => _guard(() async {
+    // Row Level Security only returns the caller's own couple.
+    final row = await _client
+        .from('couples')
+        .select('id, together_since')
+        .maybeSingle();
+    if (row == null) return null;
+    final since = row['together_since'] as String?;
+    return CoupleSpace(
+      id: row['id'] as String,
+      togetherSince: since == null ? null : DateTime.parse(since),
+    );
+  });
+
+  @override
+  Future<void> setTogetherSince(DateTime date) => _guard(() async {
+    final couple = await getMyCouple();
+    if (couple == null) {
+      throw const CoupleFailure(CoupleFailureReason.notInCouple);
+    }
+    await _client
+        .from('couples')
+        .update({'together_since': _dateOnly(date)})
+        .eq('id', couple.id);
+  });
+
+  static String _dateOnly(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
+
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
       return await action();
