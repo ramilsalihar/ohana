@@ -11,6 +11,7 @@ import '../../../core/utils/format_count.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../couple/domain/couple_repository.dart';
 import '../../couple/presentation/couple_providers.dart';
+import '../../daily_question/presentation/daily_question_card.dart';
 import '../domain/together_counter.dart';
 
 /// Home shell: shows the together counter, or the next step toward it
@@ -78,6 +79,18 @@ class HomeScreen extends ConsumerWidget {
         onSecondary: () => context.push(AppRoutes.join),
       );
     }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _coupleStatus(context, ref, space),
+        const SizedBox(height: AppSpacing.xxl),
+        DailyQuestionCard(previewOnly: space.isWaitingForPartner),
+      ],
+    );
+  }
+
+  Widget _coupleStatus(BuildContext context, WidgetRef ref, CoupleSpace space) {
     if (space.isWaitingForPartner) {
       return _Step(
         title: 'Waiting for your partner',

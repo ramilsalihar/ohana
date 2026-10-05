@@ -14,6 +14,9 @@ final coupleRepositoryProvider = Provider<CoupleRepository>(
 /// Invalidate after creating, joining or editing the couple.
 final myCoupleProvider = FutureProvider<CoupleSpace?>(
   (ref) => ref.watch(coupleRepositoryProvider).getMyCouple(),
+  // No silent background retries: Home shows the error with a "Try again"
+  // button instead.
+  retry: (_, _) => null,
 );
 
 /// Reads the device's IANA time zone, e.g. `Europe/Berlin`. The couple's time

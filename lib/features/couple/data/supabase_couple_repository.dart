@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/utils/date_only.dart';
 import '../domain/couple_repository.dart';
 import '../domain/invite.dart';
 import '../domain/invite_code.dart';
@@ -67,14 +68,9 @@ class SupabaseCoupleRepository implements CoupleRepository {
     }
     await _client
         .from('couples')
-        .update({'together_since': _dateOnly(date)})
+        .update({'together_since': formatDateOnly(date)})
         .eq('id', couple.id);
   });
-
-  static String _dateOnly(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
 
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {

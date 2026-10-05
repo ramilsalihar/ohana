@@ -33,7 +33,7 @@ Scope: F2 daily question, F4 partner activity, F7 push for F2.
 
 - [x] Question bank seed: migration with starter questions tagged by category and stage (PRD F2)
 - [x] Daily question assignment: SQL function that returns today's question for the couple (rotates 04:00 couple time zone, no repeats until the bank is used up)
-- [ ] Answer today's question on Home: text up to 500 characters, editable until the partner answers, "Waiting for partner" state
+- [x] Answer today's question on Home: text up to 500 characters, editable until the partner answers, "Waiting for partner" state
 - [ ] Reveal: both answers side by side once both answered, via `get_partner_answer`; react with an emoji or short comment
 - [ ] History: past questions and answers; missed days stay answerable
 - [ ] Gentle streak: counts days both answered, 2 freeze days per week, no blame copy

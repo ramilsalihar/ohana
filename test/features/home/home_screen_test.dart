@@ -9,10 +9,12 @@ import 'package:ohana/features/auth/presentation/auth_providers.dart';
 import 'package:ohana/features/couple/domain/couple_repository.dart';
 import 'package:ohana/features/couple/domain/invite.dart';
 import 'package:ohana/features/couple/presentation/couple_providers.dart';
+import 'package:ohana/features/daily_question/presentation/daily_question_providers.dart';
 import 'package:ohana/features/home/presentation/home_screen.dart';
 
 import '../auth/fake_auth_repository.dart';
 import '../couple/fake_couple_repository.dart';
+import '../daily_question/fake_daily_question_repository.dart';
 
 class _FailingOnceCoupleRepository extends FakeCoupleRepository {
   _FailingOnceCoupleRepository({required super.invite});
@@ -59,6 +61,9 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(auth),
           coupleRepositoryProvider.overrideWithValue(couples),
+          dailyQuestionRepositoryProvider.overrideWithValue(
+            FakeDailyQuestionRepository(),
+          ),
           clockProvider.overrideWithValue(
             () => today ?? DateTime(2026, 10, 5, 9),
           ),
@@ -199,5 +204,32 @@ void main() {
     await tester.tap(find.byTooltip('Your profile'));
     await tester.pumpAndSettle();
     expect(find.text('PROFILE'), findsOneWidget);
+  });
+
+  const question = 'What small thing made you smile today?';
+
+  testWidgets('paired: shows today\'s question with an editor', (tester) async {
+    await pumpHome(
+      tester,
+      couple: CoupleSpace(id: 'c1', togetherSince: DateTime(2023, 5, 14)),
+    );
+
+    expect(find.text(question), findsOneWidget);
+    expect(find.text('Share answer'), findsOneWidget);
+  });
+
+  testWidgets('waiting for partner: question is a read-only preview', (
+    tester,
+  ) async {
+    await pumpHome(tester, couple: const CoupleSpace(id: 'c1', memberCount: 1));
+
+    expect(find.text(question), findsOneWidget);
+    expect(find.text('Share answer'), findsNothing);
+  });
+
+  testWidgets('no couple: no question is shown', (tester) async {
+    await pumpHome(tester);
+
+    expect(find.text(question), findsNothing);
   });
 }
