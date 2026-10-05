@@ -130,6 +130,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       final since = _togetherSince;
       if (_couple != null && since != null && since != _couple!.togetherSince) {
         await ref.read(coupleRepositoryProvider).setTogetherSince(since);
+        ref.invalidate(myCoupleProvider);
       }
       if (!mounted) return;
       if (context.canPop()) {

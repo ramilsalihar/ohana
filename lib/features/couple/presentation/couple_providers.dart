@@ -10,6 +10,12 @@ final coupleRepositoryProvider = Provider<CoupleRepository>(
   (ref) => SupabaseCoupleRepository(Supabase.instance.client),
 );
 
+/// The current user's couple space, or null when they are not in one.
+/// Invalidate after creating, joining or editing the couple.
+final myCoupleProvider = FutureProvider<CoupleSpace?>(
+  (ref) => ref.watch(coupleRepositoryProvider).getMyCouple(),
+);
+
 /// Reads the device's IANA time zone, e.g. `Europe/Berlin`. The couple's time
 /// zone is set from the first member's device (PRD F2).
 typedef DeviceTimezoneReader = Future<String> Function();

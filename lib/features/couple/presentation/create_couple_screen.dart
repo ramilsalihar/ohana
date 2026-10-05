@@ -37,6 +37,7 @@ class _CreateCoupleScreenState extends ConsumerState<CreateCoupleScreen> {
         if (e.reason != CoupleFailureReason.alreadyInCouple) rethrow;
       }
       final invite = await couples.createInvite();
+      ref.invalidate(myCoupleProvider);
       if (mounted) setState(() => _invite = invite);
     } on CoupleFailure catch (e) {
       if (mounted) setState(() => _error = e.message);

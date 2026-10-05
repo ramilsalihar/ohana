@@ -49,6 +49,7 @@ class _JoinCoupleScreenState extends ConsumerState<JoinCoupleScreen> {
       await ref
           .read(coupleRepositoryProvider)
           .joinCouple(_codeController.text, leaveEmptySpace: leaveEmptySpace);
+      ref.invalidate(myCoupleProvider);
       if (mounted) context.go(AppRoutes.home);
     } on CoupleFailure catch (e) {
       if (!mounted) return;

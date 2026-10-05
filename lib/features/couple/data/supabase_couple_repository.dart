@@ -50,8 +50,11 @@ class SupabaseCoupleRepository implements CoupleRepository {
         .maybeSingle();
     if (row == null) return null;
     final since = row['together_since'] as String?;
+    // Likewise limited to members of the caller's couple.
+    final members = await _client.from('couple_members').select('user_id');
     return CoupleSpace(
       id: row['id'] as String,
+      memberCount: members.length,
       togetherSince: since == null ? null : DateTime.parse(since),
     );
   });

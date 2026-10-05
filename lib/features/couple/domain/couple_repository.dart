@@ -26,9 +26,18 @@ abstract interface class CoupleRepository {
 }
 
 class CoupleSpace {
-  const CoupleSpace({required this.id, this.togetherSince});
+  const CoupleSpace({
+    required this.id,
+    this.togetherSince,
+    this.memberCount = 2,
+  });
 
   final String id;
+
+  /// 1 while waiting for the partner to join, 2 once paired.
+  final int memberCount;
+
+  bool get isWaitingForPartner => memberCount < 2;
 
   /// Calendar date (local midnight), or null if not set yet.
   final DateTime? togetherSince;

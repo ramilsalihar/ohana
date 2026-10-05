@@ -6,12 +6,15 @@ import 'package:ohana/app/router/app_router.dart';
 import 'package:ohana/features/auth/domain/app_user.dart';
 import 'package:ohana/features/auth/presentation/auth_providers.dart';
 import 'package:ohana/features/auth/presentation/sign_in_screen.dart';
+import 'package:ohana/features/couple/domain/invite.dart';
 import 'package:ohana/features/couple/domain/invite_code.dart';
+import 'package:ohana/features/couple/presentation/couple_providers.dart';
 import 'package:ohana/features/couple/presentation/join_couple_screen.dart';
 import 'package:ohana/features/home/presentation/home_screen.dart';
 import 'package:ohana/features/welcome/presentation/welcome_screen.dart';
 
 import '../../features/auth/fake_auth_repository.dart';
+import '../../features/couple/fake_couple_repository.dart';
 
 const _sam = AppUser(id: 'user-1', email: 'sam@example.com');
 
@@ -21,7 +24,14 @@ void main() {
     FakeAuthRepository auth,
   ) async {
     final container = ProviderContainer(
-      overrides: [authRepositoryProvider.overrideWithValue(auth)],
+      overrides: [
+        authRepositoryProvider.overrideWithValue(auth),
+        coupleRepositoryProvider.overrideWithValue(
+          FakeCoupleRepository(
+            invite: Invite(code: 'UNUSED', expiresAt: DateTime(2030)),
+          ),
+        ),
+      ],
     );
     addTearDown(container.dispose);
     await tester.pumpWidget(

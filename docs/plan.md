@@ -25,4 +25,4 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 - [x] Create couple space + generate invite code (7-day expiry, single use)
 - [x] Join couple via code / deep link
 - [x] Profile setup: display name, avatar, "together since" date
-- [ ] Home screen shell with together counter (F6)
+- [x] Home screen shell with together counter (F6)
