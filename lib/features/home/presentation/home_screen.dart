@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/router/app_router.dart';
 
 /// Placeholder home screen until the home shell is built.
 class HomeScreen extends StatelessWidget {
@@ -8,7 +11,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
-      body: const Center(child: Text('Home coming soon')),
+      body: Center(
+        child: FilledButton(
+          onPressed: () => context.push(AppRoutes.createCouple),
+          child: const Text('Create our space'),
+        ),
+      ),
     );
   }
 }

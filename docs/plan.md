@@ -22,7 +22,7 @@ Milestones follow [PRD §10](prd.md#10-release-plan).
 ## M1 — Pairing
 
 - [x] Auth screens: Apple, Google, email magic link (UI + repository, behind an interface so it is testable)
-- [ ] Create couple space + generate invite code (7-day expiry, single use)
+- [x] Create couple space + generate invite code (7-day expiry, single use)
 - [ ] Join couple via code / deep link
 - [ ] Profile setup: display name, avatar, "together since" date
 - [ ] Home screen shell with together counter (F6)

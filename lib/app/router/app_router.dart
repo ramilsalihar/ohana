@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/auth_providers.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/couple/presentation/create_couple_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/welcome/presentation/welcome_screen.dart';
 
@@ -14,6 +15,7 @@ abstract final class AppRoutes {
   static const welcome = '/welcome';
   static const signIn = '/sign-in';
   static const home = '/home';
+  static const createCouple = '/couple/create';
 
   /// Routes a signed-out user may see.
   static const public = {welcome, signIn};
@@ -50,6 +52,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.createCouple,
+        builder: (context, state) => const CreateCoupleScreen(),
       ),
     ],
   );
