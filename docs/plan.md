@@ -38,6 +38,7 @@ Scope: F2 daily question, F4 partner activity, F7 push for F2.
 - [x] History: past questions and answers; missed days stay answerable
 - [x] Gentle streak: counts days both answered, 2 freeze days per week, no blame copy
 - [x] Activity strip on Home (F4): positive actions only, last 48 hours
-- [ ] Apply all `supabase/migrations/` to the Supabase project and smoke-test sign-in, pairing and the daily question on a device **(HUMAN)**
+- [x] Apply all `supabase/migrations/` to the Supabase project (done 2026-10-06 through the dashboard SQL editor; not recorded in Supabase's migration history)
+- [ ] Smoke-test sign-in, pairing and the daily question on a device with two accounts **(HUMAN)**
 - [ ] Create Firebase project, add FCM/APNs credentials and platform config files **(HUMAN)**
 - [ ] Push notifications for F2: new question, partner answered, both answered (Edge Function + device token registration)
