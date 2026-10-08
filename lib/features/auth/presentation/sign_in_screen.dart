@@ -5,6 +5,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../domain/auth_repository.dart';
 import '../domain/email_validator.dart';
 import 'auth_providers.dart';
+import 'test_login_section.dart';
 
 /// Sign in with an email magic link, Apple or Google.
 class SignInScreen extends ConsumerStatefulWidget {
@@ -140,6 +141,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 : () => _run((auth) => auth.signInWithGoogle()),
             child: const Text('Continue with Google'),
           ),
+          if (ref.watch(testLoginEnabledProvider)) ...[
+            const SizedBox(height: AppSpacing.xl),
+            const TestLoginSection(),
+          ],
           if (error != null) ...[
             const SizedBox(height: AppSpacing.lg),
             Semantics(

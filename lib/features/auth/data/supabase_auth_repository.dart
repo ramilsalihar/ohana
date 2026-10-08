@@ -27,6 +27,24 @@ class SupabaseAuthRepository implements AuthRepository {
   );
 
   @override
+  Future<void> signInWithPassword(String email, String password) => _guard(
+    () => _auth.signInWithPassword(email: email.trim(), password: password),
+  );
+
+  @override
+  Future<bool> signUpWithPassword(String email, String password) async {
+    var signedIn = false;
+    await _guard(() async {
+      final response = await _auth.signUp(
+        email: email.trim(),
+        password: password,
+      );
+      signedIn = response.session != null;
+    });
+    return signedIn;
+  }
+
+  @override
   Future<void> signInWithApple() => _oauth(OAuthProvider.apple);
 
   @override

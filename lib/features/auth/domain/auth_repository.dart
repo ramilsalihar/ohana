@@ -13,6 +13,13 @@ abstract interface class AuthRepository {
   /// the user is signed in later, when they open the link.
   Future<void> sendMagicLink(String email);
 
+  /// Test-only sign-in with email and password (see `Env.testLoginEnabled`).
+  Future<void> signInWithPassword(String email, String password);
+
+  /// Test-only account creation. Returns false when the project requires the
+  /// new address to be confirmed by email before the user is signed in.
+  Future<bool> signUpWithPassword(String email, String password);
+
   Future<void> signInWithApple();
 
   Future<void> signInWithGoogle();
